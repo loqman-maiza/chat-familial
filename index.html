@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Familial avec Appel Vocal 💬📞</title>
+    <title>Chat Familial avec Appel Vocal Réel 💬📞</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- PeerJS pour l'appel vocal RÉEL -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    
     <style>
         *, ::before, ::after {
             box-sizing: border-box;
@@ -447,13 +451,18 @@
             position: relative;
         }
 
-        .action-btn:hover {
+        .action-btn:hover:not(:disabled) {
             transform: scale(1.1);
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
         }
 
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         .action-btn.calling {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             animation: pulse-call 1.5s infinite;
         }
 
@@ -463,7 +472,7 @@
         }
 
         .action-btn.in-call {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+            background: linear-gradient(135deg, #10b981, #059669);
         }
 
         /* MESSAGES */
@@ -905,8 +914,8 @@
                     </div>
                 </div>
                 <div class="chat-actions">
-                    <button class="action-btn" id="voiceCallBtn" title="Appel vocal" onclick="startVoiceCall()" disabled>📞</button>
-                    <button class="action-btn" title="Appel vidéo" disabled>📹</button>
+                    <button class="action-btn" id="voiceCallBtn" title="Appel vocal 🎤 AUDIO RÉEL" onclick="startVoiceCall()" disabled>📞</button>
+                    <button class="action-btn" title="Appel vidéo (bientôt)" disabled>📹</button>
                 </div>
             </div>
 
@@ -951,11 +960,8 @@
         <span id="statusText">Déconnecté</span>
     </div>
 
-    <!-- Audio elements -->
+    <!-- Audio element pour le son distant -->
     <audio id="remoteAudio" autoplay></audio>
-    <audio id="ringtone" loop>
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1L" type="audio/wav">
-    </audio>
 
     <script type="module">
         // Import Firebase
@@ -989,21 +995,12 @@
         let presenceRef;
         let currentMessagesListener = null;
         
-        // Variables pour l'appel vocal
+        // Variables PeerJS pour l'appel vocal RÉEL
+        let peer = null;
+        let currentCall = null;
         let localStream = null;
-        let peerConnection = null;
-        let inCall = false;
         let callTimer = null;
         let callStartTime = null;
-        let currentCallId = null;
-
-        // Configuration WebRTC
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        };
 
         // Initialiser Firebase
         try {
@@ -1040,6 +1037,7 @@
             document.getElementById('myName').textContent = currentUser.name;
             
             initChat();
+            initPeer();
         };
 
         function initChat() {
@@ -1066,9 +1064,52 @@
             onValue(allPresenceRef, (snapshot) => {
                 updateContactsStatus(snapshot.val());
             });
+        }
+
+        // ===== INITIALISATION PEERJS =====
+        function initPeer() {
+            // Créer un peer avec un ID unique basé sur le rôle
+            const peerId = 'chat-familial-' + currentUser.role;
             
+            peer = new Peer(peerId, {
+                debug: 2,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
+
+            peer.on('open', (id) => {
+                console.log('🎤 PeerJS connecté avec ID:', id);
+                
+                // Enregistrer le peer ID dans Firebase
+                const peerRef = ref(database, 'peers/' + currentUser.role);
+                set(peerRef, {
+                    peerId: id,
+                    online: true,
+                    timestamp: serverTimestamp()
+                });
+                
+                onDisconnect(peerRef).remove();
+            });
+
             // Écouter les appels entrants
-            listenForIncomingCalls();
+            peer.on('call', async (call) => {
+                console.log('📞 Appel entrant!');
+                
+                // Déterminer qui appelle
+                const callerRole = call.peer.replace('chat-familial-', '');
+                const caller = allMembers[callerRole];
+                
+                // Afficher le modal d'appel entrant
+                showIncomingCallModal(caller, callerRole, call);
+            });
+
+            peer.on('error', (err) => {
+                console.error('❌ Erreur PeerJS:', err);
+            });
         }
 
         function renderContacts() {
@@ -1150,8 +1191,6 @@
         };
 
         function loadMessages(contactRole) {
-            console.log("📨 Chargement des messages avec:", contactRole);
-            
             const conversationId = [currentUser.role, contactRole].sort().join('_');
             const messagesRef = ref(database, 'conversations/' + conversationId);
             
@@ -1163,7 +1202,6 @@
                         ...childSnapshot.val()
                     });
                 });
-                
                 displayMessages(messages);
             });
         }
@@ -1236,7 +1274,7 @@
             });
         };
 
-        // ===== FONCTIONS D'APPEL VOCAL =====
+        // ===== APPEL VOCAL AVEC PEERJS =====
         
         window.startVoiceCall = async function() {
             if (!selectedContact) {
@@ -1244,17 +1282,29 @@
                 return;
             }
             
+            if (!peer) {
+                alert("PeerJS n'est pas encore initialisé. Attendez quelques secondes.");
+                return;
+            }
+            
             console.log("📞 Démarrage de l'appel vers:", selectedContact);
             
             try {
                 // Demander accès au microphone
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
                 console.log("🎤 Microphone activé");
                 
-                // Créer l'ID de l'appel
-                currentCallId = Date.now().toString();
+                // Obtenir le peer ID du contact
+                const remotePeerId = 'chat-familial-' + selectedContact;
                 
-                // Afficher le modal d'appel
+                // Afficher le modal d'appel sortant
                 const contact = allMembers[selectedContact];
                 document.getElementById('callAvatar').textContent = contact.emoji;
                 document.getElementById('callName').textContent = contact.name;
@@ -1262,59 +1312,42 @@
                 document.getElementById('callStatus').classList.add('ringing');
                 document.getElementById('callModal').classList.add('active');
                 document.getElementById('voiceCallBtn').classList.add('calling');
+                document.getElementById('callActions').style.display = 'flex';
+                document.getElementById('incomingCallActions').style.display = 'none';
                 
-                // Envoyer la demande d'appel via Firebase
-                const callRef = ref(database, 'calls/' + currentCallId);
-                await set(callRef, {
-                    from: currentUser.role,
-                    to: selectedContact,
-                    status: 'ringing',
-                    timestamp: serverTimestamp()
+                // Appeler le contact
+                currentCall = peer.call(remotePeerId, localStream);
+                
+                // Écouter le stream distant
+                currentCall.on('stream', (remoteStream) => {
+                    console.log("🔊 Stream distant reçu!");
+                    const remoteAudio = document.getElementById('remoteAudio');
+                    remoteAudio.srcObject = remoteStream;
+                    
+                    // L'appel est connecté
+                    document.getElementById('callStatus').textContent = 'En communication';
+                    document.getElementById('callStatus').classList.remove('ringing');
+                    document.getElementById('voiceCallBtn').classList.remove('calling');
+                    document.getElementById('voiceCallBtn').classList.add('in-call');
+                    
+                    startCallTimer();
                 });
                 
-                console.log("📱 Demande d'appel envoyée");
-                
-                // Écouter la réponse
-                onValue(callRef, async (snapshot) => {
-                    const callData = snapshot.val();
-                    if (!callData) return;
-                    
-                    if (callData.status === 'accepted') {
-                        console.log("✅ Appel accepté!");
-                        await handleCallAccepted(callData);
-                    } else if (callData.status === 'rejected') {
-                        console.log("❌ Appel refusé");
-                        endCall();
-                    }
+                currentCall.on('close', () => {
+                    console.log("📴 Appel terminé");
+                    endCall();
                 });
                 
             } catch (error) {
-                console.error("❌ Erreur accès microphone:", error);
+                console.error("❌ Erreur appel:", error);
                 alert("Impossible d'accéder au microphone. Vérifiez les permissions.");
+                endCall();
             }
         };
         
-        function listenForIncomingCalls() {
-            const callsRef = ref(database, 'calls');
-            onValue(callsRef, (snapshot) => {
-                snapshot.forEach((childSnapshot) => {
-                    const callData = childSnapshot.val();
-                    const callId = childSnapshot.key;
-                    
-                    // Si c'est un appel pour moi et qu'il est en cours de sonnerie
-                    if (callData.to === currentUser.role && callData.status === 'ringing' && callId !== currentCallId) {
-                        console.log("📞 Appel entrant de:", callData.from);
-                        handleIncomingCall(callId, callData);
-                    }
-                });
-            });
-        }
-        
-        async function handleIncomingCall(callId, callData) {
-            currentCallId = callId;
-            const caller = allMembers[callData.from];
+        function showIncomingCallModal(caller, callerRole, call) {
+            selectedContact = callerRole;
             
-            // Afficher le modal d'appel entrant
             document.getElementById('callAvatar').textContent = caller.emoji;
             document.getElementById('callName').textContent = caller.name;
             document.getElementById('callStatus').textContent = 'Appel entrant...';
@@ -1323,73 +1356,61 @@
             document.getElementById('callActions').style.display = 'none';
             document.getElementById('incomingCallActions').style.display = 'flex';
             
-            // Jouer la sonnerie
-            const ringtone = document.getElementById('ringtone');
-            ringtone.play();
+            // Stocker l'appel
+            currentCall = call;
         }
         
         window.acceptCall = async function() {
             console.log("✅ Acceptation de l'appel");
             
-            const ringtone = document.getElementById('ringtone');
-            ringtone.pause();
-            ringtone.currentTime = 0;
-            
             try {
                 // Demander accès au microphone
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Mettre à jour le statut de l'appel
-                const callRef = ref(database, 'calls/' + currentCallId);
-                await set(callRef, {
-                    from: currentUser.role,
-                    to: selectedContact,
-                    status: 'accepted',
-                    timestamp: serverTimestamp()
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
                 });
                 
-                document.getElementById('incomingCallActions').style.display = 'none';
-                document.getElementById('callActions').style.display = 'flex';
-                document.getElementById('callStatus').textContent = 'En communication';
-                document.getElementById('callStatus').classList.remove('ringing');
+                // Répondre avec notre stream
+                currentCall.answer(localStream);
                 
-                startCallTimer();
+                // Écouter le stream distant
+                currentCall.on('stream', (remoteStream) => {
+                    console.log("🔊 Stream distant reçu!");
+                    const remoteAudio = document.getElementById('remoteAudio');
+                    remoteAudio.srcObject = remoteStream;
+                    
+                    document.getElementById('incomingCallActions').style.display = 'none';
+                    document.getElementById('callActions').style.display = 'flex';
+                    document.getElementById('callStatus').textContent = 'En communication';
+                    document.getElementById('callStatus').classList.remove('ringing');
+                    
+                    startCallTimer();
+                });
                 
-                // Note: Pour un vrai appel vocal, il faudrait implémenter WebRTC avec signaling
-                // Ici c'est une simulation simplifiée
+                currentCall.on('close', () => {
+                    console.log("📴 Appel terminé");
+                    endCall();
+                });
                 
             } catch (error) {
-                console.error("❌ Erreur acceptation appel:", error);
+                console.error("❌ Erreur acceptation:", error);
+                alert("Impossible d'accéder au microphone.");
                 rejectCall();
             }
         };
         
-        window.rejectCall = async function() {
+        window.rejectCall = function() {
             console.log("❌ Refus de l'appel");
             
-            const ringtone = document.getElementById('ringtone');
-            ringtone.pause();
-            ringtone.currentTime = 0;
+            if (currentCall) {
+                currentCall.close();
+            }
             
-            const callRef = ref(database, 'calls/' + currentCallId);
-            await set(callRef, {
-                status: 'rejected',
-                timestamp: serverTimestamp()
-            });
-            
-            document.getElementById('callModal').classList.remove('active');
-            currentCallId = null;
+            endCall();
         };
-        
-        async function handleCallAccepted(callData) {
-            document.getElementById('callStatus').textContent = 'En communication';
-            document.getElementById('callStatus').classList.remove('ringing');
-            document.getElementById('voiceCallBtn').classList.remove('calling');
-            document.getElementById('voiceCallBtn').classList.add('in-call');
-            
-            startCallTimer();
-            inCall = true;
-        }
         
         function startCallTimer() {
             callStartTime = Date.now();
@@ -1403,7 +1424,7 @@
             }, 1000);
         }
         
-        window.endCall = async function() {
+        window.endCall = function() {
             console.log("📴 Fin de l'appel");
             
             // Arrêter le timer
@@ -1412,16 +1433,16 @@
                 callTimer = null;
             }
             
-            // Arrêter le stream audio
+            // Arrêter le stream local
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
             }
             
-            // Supprimer l'appel de Firebase
-            if (currentCallId) {
-                const callRef = ref(database, 'calls/' + currentCallId);
-                await remove(callRef);
+            // Fermer l'appel
+            if (currentCall) {
+                currentCall.close();
+                currentCall = null;
             }
             
             // Réinitialiser l'UI
@@ -1429,11 +1450,14 @@
             document.getElementById('callTimer').style.display = 'none';
             document.getElementById('callTimer').textContent = '00:00';
             document.getElementById('voiceCallBtn').classList.remove('calling', 'in-call');
-            document.getElementById('callActions').style.display = 'flex';
-            document.getElementById('incomingCallActions').style.display = 'none';
+            document.getElementById('callStatus').classList.remove('ringing');
             
-            inCall = false;
-            currentCallId = null;
+            // Arrêter l'audio distant
+            const remoteAudio = document.getElementById('remoteAudio');
+            if (remoteAudio.srcObject) {
+                remoteAudio.srcObject.getTracks().forEach(track => track.stop());
+                remoteAudio.srcObject = null;
+            }
         };
 
         function updateFirebaseStatus(connected) {
@@ -1463,6 +1487,14 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 sendMessage();
+            }
+        });
+        
+        // Nettoyer à la fermeture
+        window.addEventListener('beforeunload', () => {
+            endCall();
+            if (peer) {
+                peer.destroy();
             }
         });
     </script>
