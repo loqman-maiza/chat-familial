@@ -663,6 +663,240 @@
             cursor: not-allowed;
         }
 
+        .voice-msg-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: var(--white);
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .voice-msg-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .voice-msg-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .voice-msg-btn.recording {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: pulse-record 1s infinite;
+        }
+
+        @keyframes pulse-record {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+            50% { transform: scale(1.1); box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5); }
+        }
+
+        /* MESSAGES VOCAUX */
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            min-width: 200px;
+        }
+
+        .message.sent .voice-message {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .voice-play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #6366f1;
+            border: none;
+            color: var(--white);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .message.sent .voice-play-btn {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .voice-play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-play-btn.playing {
+            background: #10b981;
+        }
+
+        .message.sent .voice-play-btn.playing {
+            background: rgba(16, 185, 129, 0.5);
+        }
+
+        .voice-wave {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 30px;
+        }
+
+        .voice-bar {
+            width: 3px;
+            background: #cbd5e1;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .message.sent .voice-bar {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .voice-wave.playing .voice-bar {
+            background: #6366f1;
+            animation: wave-animation 1s ease-in-out infinite;
+        }
+
+        .message.sent .voice-wave.playing .voice-bar {
+            background: var(--white);
+        }
+
+        @keyframes wave-animation {
+            0%, 100% { height: 8px; }
+            50% { height: 24px; }
+        }
+
+        .voice-bar:nth-child(1) { animation-delay: 0s; }
+        .voice-bar:nth-child(2) { animation-delay: 0.1s; }
+        .voice-bar:nth-child(3) { animation-delay: 0.2s; }
+        .voice-bar:nth-child(4) { animation-delay: 0.3s; }
+        .voice-bar:nth-child(5) { animation-delay: 0.4s; }
+        .voice-bar:nth-child(6) { animation-delay: 0.5s; }
+        .voice-bar:nth-child(7) { animation-delay: 0.6s; }
+        .voice-bar:nth-child(8) { animation-delay: 0.7s; }
+
+        .voice-duration {
+            font-size: 12px;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+            white-space: nowrap;
+        }
+
+        .message.sent .voice-duration {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* MODAL D'ENREGISTREMENT */
+        .recording-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 30px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 1500;
+            animation: slideUpModal 0.3s;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
+        }
+
+        .recording-modal.active {
+            display: flex;
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .recording-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recording-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse-dot-big 1s infinite;
+        }
+
+        @keyframes pulse-dot-big {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .recording-time {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--white);
+            font-family: 'Courier New', monospace;
+        }
+
+        .recording-text {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+        }
+
+        .recording-actions {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .recording-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .recording-btn.cancel {
+            background: #64748b;
+        }
+
+        .recording-btn.send {
+            background: #10b981;
+        }
+
+        .recording-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .recording-btn:active {
+            transform: scale(0.95);
+        }
+
         /* CALL MODAL */
         .call-modal {
             position: fixed;
@@ -1054,6 +1288,45 @@
                 font-size: 20px;
             }
 
+            .voice-msg-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+
+            .voice-message {
+                min-width: 180px;
+                padding: 10px 14px;
+            }
+
+            .voice-play-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .voice-duration {
+                font-size: 11px;
+            }
+
+            .recording-modal {
+                padding: 25px;
+            }
+
+            .recording-time {
+                font-size: 28px;
+            }
+
+            .recording-text {
+                font-size: 14px;
+            }
+
+            .recording-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+
             /* CALL MODAL */
             .call-box {
                 padding: 40px 30px;
@@ -1182,6 +1455,33 @@
                 font-size: 18px;
             }
 
+            .voice-msg-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .voice-message {
+                min-width: 160px;
+                padding: 8px 12px;
+            }
+
+            .voice-play-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .recording-time {
+                font-size: 24px;
+            }
+
+            .recording-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 24px;
+            }
+
             .call-avatar-large {
                 width: 90px;
                 height: 90px;
@@ -1300,6 +1600,7 @@
                     <button class="emoji-btn">😊</button>
                 </div>
                 <button class="send-btn" id="sendBtn" disabled onclick="sendMessage()">➤</button>
+                <button class="voice-msg-btn" id="voiceMsgBtn" disabled onclick="toggleVoiceRecording()" title="Message vocal">🎤</button>
             </div>
         </div>
     </div>
@@ -1325,6 +1626,19 @@
     <div class="firebase-status disconnected" id="firebaseStatus" style="display: none;">
         <span class="status-dot"></span>
         <span id="statusText">Déconnecté</span>
+    </div>
+
+    <!-- RECORDING MODAL -->
+    <div class="recording-modal" id="recordingModal">
+        <div class="recording-indicator">
+            <div class="recording-dot"></div>
+            <div class="recording-time" id="recordingTime">00:00</div>
+        </div>
+        <div class="recording-text">Enregistrement en cours...</div>
+        <div class="recording-actions">
+            <button class="recording-btn cancel" onclick="cancelVoiceRecording()" title="Annuler">🗑️</button>
+            <button class="recording-btn send" onclick="sendVoiceMessage()" title="Envoyer">➤</button>
+        </div>
     </div>
 
     <!-- Audio element pour le son distant -->
@@ -1368,6 +1682,14 @@
         let localStream = null;
         let callTimer = null;
         let callStartTime = null;
+
+        // Variables pour les messages vocaux
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingTimer = null;
+        let recordingStartTime = null;
+        let isRecording = false;
+        let currentPlayingAudio = null;
 
         // Initialiser Firebase
         try {
@@ -1552,6 +1874,7 @@
             document.getElementById('messageInput').disabled = false;
             document.getElementById('sendBtn').disabled = false;
             document.getElementById('voiceCallBtn').disabled = false;
+            document.getElementById('voiceMsgBtn').disabled = false;
             document.getElementById('messageInput').focus();
             
             loadMessages(role);
@@ -1604,15 +1927,42 @@
                     const sender = allMembers[msg.from];
                     const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 'Maintenant';
                     
-                    html += `
-                        <div class="message ${isSent ? 'sent' : 'received'}">
-                            <div class="message-avatar" style="background: ${sender.color}">${sender.emoji}</div>
-                            <div class="message-content">
-                                <div class="message-text">${escapeHtml(msg.text)}</div>
-                                <div class="message-time">${time}</div>
+                    // Message vocal
+                    if (msg.type === 'voice') {
+                        html += `
+                            <div class="message ${isSent ? 'sent' : 'received'}">
+                                <div class="message-avatar" style="background: ${sender.color}">${sender.emoji}</div>
+                                <div class="message-content">
+                                    <div class="voice-message" data-audio="${msg.audio}" data-duration="${msg.duration}">
+                                        <button class="voice-play-btn" onclick="playVoiceMessage(this)">▶️</button>
+                                        <div class="voice-wave">
+                                            <div class="voice-bar" style="height: 12px;"></div>
+                                            <div class="voice-bar" style="height: 18px;"></div>
+                                            <div class="voice-bar" style="height: 8px;"></div>
+                                            <div class="voice-bar" style="height: 20px;"></div>
+                                            <div class="voice-bar" style="height: 14px;"></div>
+                                            <div class="voice-bar" style="height: 10px;"></div>
+                                            <div class="voice-bar" style="height: 16px;"></div>
+                                            <div class="voice-bar" style="height: 12px;"></div>
+                                        </div>
+                                        <div class="voice-duration">${msg.duration || '0:00'}</div>
+                                    </div>
+                                    <div class="message-time">${time}</div>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    } else {
+                        // Message texte normal
+                        html += `
+                            <div class="message ${isSent ? 'sent' : 'received'}">
+                                <div class="message-avatar" style="background: ${sender.color}">${sender.emoji}</div>
+                                <div class="message-content">
+                                    <div class="message-text">${escapeHtml(msg.text)}</div>
+                                    <div class="message-time">${time}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
                 });
             });
             
@@ -1864,6 +2214,191 @@
                 peer.destroy();
             }
         });
+
+        // ===== MESSAGES VOCAUX =====
+        
+        window.toggleVoiceRecording = async function() {
+            if (isRecording) {
+                stopVoiceRecording();
+            } else {
+                startVoiceRecording();
+            }
+        };
+
+        async function startVoiceRecording() {
+            if (!selectedContact) {
+                alert("Sélectionnez d'abord un contact !");
+                return;
+            }
+
+            try {
+                console.log("🎤 Démarrage de l'enregistrement vocal");
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                // UI
+                document.getElementById('voiceMsgBtn').classList.add('recording');
+                document.getElementById('recordingModal').classList.add('active');
+                
+                // Timer
+                recordingStartTime = Date.now();
+                recordingTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('recordingTime').textContent = `${minutes}:${seconds}`;
+                }, 100);
+
+            } catch (error) {
+                console.error("❌ Erreur enregistrement:", error);
+                alert("Impossible d'accéder au microphone. Vérifiez les permissions.");
+            }
+        }
+
+        function stopVoiceRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            
+            if (recordingTimer) {
+                clearInterval(recordingTimer);
+                recordingTimer = null;
+            }
+
+            isRecording = false;
+            document.getElementById('voiceMsgBtn').classList.remove('recording');
+        }
+
+        window.cancelVoiceRecording = function() {
+            console.log("❌ Enregistrement annulé");
+            stopVoiceRecording();
+            audioChunks = [];
+            document.getElementById('recordingModal').classList.remove('active');
+            document.getElementById('recordingTime').textContent = '00:00';
+        };
+
+        window.sendVoiceMessage = async function() {
+            console.log("📤 Envoi du message vocal");
+            
+            stopVoiceRecording();
+
+            if (audioChunks.length === 0) {
+                alert("Aucun audio enregistré !");
+                return;
+            }
+
+            // Calculer la durée
+            const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const durationText = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
+
+            // Créer le blob audio
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+            
+            // Convertir en base64
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64Audio = reader.result;
+
+                // Envoyer à Firebase
+                const conversationId = [currentUser.role, selectedContact].sort().join('_');
+                const messagesRef = ref(database, 'conversations/' + conversationId);
+
+                await push(messagesRef, {
+                    type: 'voice',
+                    audio: base64Audio,
+                    duration: durationText,
+                    from: currentUser.role,
+                    to: selectedContact,
+                    timestamp: serverTimestamp()
+                });
+
+                console.log("✅ Message vocal envoyé!");
+                
+                // Reset UI
+                document.getElementById('recordingModal').classList.remove('active');
+                document.getElementById('recordingTime').textContent = '00:00';
+                audioChunks = [];
+            };
+
+            reader.readAsDataURL(audioBlob);
+        };
+
+        window.playVoiceMessage = function(button) {
+            const voiceMsg = button.closest('.voice-message');
+            const audioData = voiceMsg.dataset.audio;
+            const waveElement = voiceMsg.querySelector('.voice-wave');
+
+            // Arrêter l'audio en cours si existant
+            if (currentPlayingAudio) {
+                currentPlayingAudio.pause();
+                currentPlayingAudio = null;
+                document.querySelectorAll('.voice-play-btn').forEach(btn => {
+                    btn.textContent = '▶️';
+                    btn.classList.remove('playing');
+                });
+                document.querySelectorAll('.voice-wave').forEach(wave => {
+                    wave.classList.remove('playing');
+                });
+            }
+
+            // Si on clique sur le même bouton, on arrête
+            if (button.classList.contains('playing')) {
+                button.textContent = '▶️';
+                button.classList.remove('playing');
+                waveElement.classList.remove('playing');
+                return;
+            }
+
+            // Créer et jouer l'audio
+            const audio = new Audio(audioData);
+            currentPlayingAudio = audio;
+
+            button.textContent = '⏸️';
+            button.classList.add('playing');
+            waveElement.classList.add('playing');
+
+            audio.play();
+
+            audio.onended = () => {
+                button.textContent = '▶️';
+                button.classList.remove('playing');
+                waveElement.classList.remove('playing');
+                currentPlayingAudio = null;
+            };
+
+            audio.onerror = () => {
+                console.error("Erreur lecture audio");
+                button.textContent = '▶️';
+                button.classList.remove('playing');
+                waveElement.classList.remove('playing');
+                currentPlayingAudio = null;
+            };
+        };
     </script>
 </body>
 </html>
