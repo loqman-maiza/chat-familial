@@ -572,10 +572,62 @@
             color: #9ca3af;
             margin-top: 5px;
             text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
         }
 
         .message.sent .message-time {
             color: rgba(255,255,255,0.8);
+        }
+
+        /* INDICATEURS DE LECTURE (COCHES) */
+        .read-status {
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .read-status.sent {
+            color: #9ca3af;
+        }
+
+        .read-status.delivered {
+            color: #9ca3af;
+        }
+
+        .read-status.read {
+            color: #3b82f6;
+        }
+
+        .message.sent .read-status.sent {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .message.sent .read-status.delivered {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .message.sent .read-status.read {
+            color: #60a5fa;
+        }
+
+        .checkmark {
+            position: relative;
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+        }
+
+        .checkmark svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        .double-check .checkmark:nth-child(2) {
+            margin-left: -6px;
         }
 
         /* INPUT AREA */
@@ -1892,6 +1944,30 @@
                         ...childSnapshot.val()
                     });
                 });
+                
+                // Marquer les messages comme lus et livrés
+                messages.forEach(msg => {
+                    // Si c'est un message qu'on a reçu et qu'il n'est pas encore marqué comme lu
+                    if (msg.to === currentUser.role && !msg.read) {
+                        const msgRef = ref(database, 'conversations/' + conversationId + '/' + msg.id);
+                        set(msgRef, {
+                            ...msg,
+                            delivered: true,
+                            read: true,
+                            readAt: serverTimestamp()
+                        });
+                    }
+                    // Si c'est un message qu'on a reçu et qu'il n'est pas encore marqué comme livré
+                    else if (msg.to === currentUser.role && !msg.delivered) {
+                        const msgRef = ref(database, 'conversations/' + conversationId + '/' + msg.id);
+                        set(msgRef, {
+                            ...msg,
+                            delivered: true,
+                            deliveredAt: serverTimestamp()
+                        });
+                    }
+                });
+                
                 displayMessages(messages);
             });
         }
@@ -1927,6 +2003,42 @@
                     const sender = allMembers[msg.from];
                     const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 'Maintenant';
                     
+                    // Indicateur de lecture pour les messages envoyés
+                    let readIndicator = '';
+                    if (isSent) {
+                        if (msg.read) {
+                            readIndicator = `
+                                <span class="read-status read double-check">
+                                    <span class="checkmark">
+                                        <svg viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path></svg>
+                                    </span>
+                                    <span class="checkmark">
+                                        <svg viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path></svg>
+                                    </span>
+                                </span>
+                            `;
+                        } else if (msg.delivered) {
+                            readIndicator = `
+                                <span class="read-status delivered double-check">
+                                    <span class="checkmark">
+                                        <svg viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path></svg>
+                                    </span>
+                                    <span class="checkmark">
+                                        <svg viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path></svg>
+                                    </span>
+                                </span>
+                            `;
+                        } else {
+                            readIndicator = `
+                                <span class="read-status sent">
+                                    <span class="checkmark">
+                                        <svg viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512z"></path></svg>
+                                    </span>
+                                </span>
+                            `;
+                        }
+                    }
+                    
                     // Message vocal
                     if (msg.type === 'voice') {
                         html += `
@@ -1947,7 +2059,7 @@
                                         </div>
                                         <div class="voice-duration">${msg.duration || '0:00'}</div>
                                     </div>
-                                    <div class="message-time">${time}</div>
+                                    <div class="message-time">${readIndicator} ${time}</div>
                                 </div>
                             </div>
                         `;
@@ -1958,7 +2070,7 @@
                                 <div class="message-avatar" style="background: ${sender.color}">${sender.emoji}</div>
                                 <div class="message-content">
                                     <div class="message-text">${escapeHtml(msg.text)}</div>
-                                    <div class="message-time">${time}</div>
+                                    <div class="message-time">${readIndicator} ${time}</div>
                                 </div>
                             </div>
                         `;
@@ -1985,7 +2097,9 @@
                 text: text,
                 from: currentUser.role,
                 to: selectedContact,
-                timestamp: serverTimestamp()
+                timestamp: serverTimestamp(),
+                delivered: false,
+                read: false
             }).then(() => {
                 input.value = '';
             });
@@ -2334,7 +2448,9 @@
                     duration: durationText,
                     from: currentUser.role,
                     to: selectedContact,
-                    timestamp: serverTimestamp()
+                    timestamp: serverTimestamp(),
+                    delivered: false,
+                    read: false
                 });
 
                 console.log("✅ Message vocal envoyé!");
