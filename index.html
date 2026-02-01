@@ -2132,9 +2132,6 @@
         let notificationPermission = false;
         let unreadMessages = {};
         let lastMessageId = null;
-
-        // Variables pour les notifications
-        let notificationPermission = false;
         let lastNotifiedMessage = null;
 
         // ===== NOTIFICATIONS =====
@@ -2183,16 +2180,8 @@
             return notification;
         }
 
-        // Jouer le son de notification
-        function playNotificationSound() {
-            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1L');
-            audio.volume = 0.3;
-            audio.play().catch(() => {}); // Ignore les erreurs si le son ne peut pas être joué
-        }
 
         // Variables pour les notifications
-        let notificationPermission = 'default';
-        let lastMessageId = null;
         let isPageVisible = true;
         let pendingNotificationData = null;
 
@@ -2410,7 +2399,7 @@
 
         function sendNotification(title, body, icon, fromRole) {
             // Notification dans l'app (toujours visible)
-            showInAppNotification(`${icon} ${title}`, body, fromRole);
+            showInAppBadgeNotification(`${icon} ${title}`, body, fromRole);
 
             // Notification navigateur (si page cachée ou dans autre conversation)
             if (notificationPermission === 'granted' && (!isPageVisible || selectedContact !== fromRole)) {
@@ -2437,7 +2426,7 @@
             }
         }
 
-        function showInAppNotification(title, text, fromRole = null) {
+        function showInAppBadgeNotification(title, text, fromRole = null) {
             const badge = document.getElementById('notificationBadge');
             const iconEl = document.getElementById('notificationIcon');
             const titleEl = document.getElementById('notificationTitle');
@@ -2594,7 +2583,7 @@
 
         // ===== SYSTÈME DE NOTIFICATIONS =====
         
-        function requestNotificationPermission() {
+        function requestNotificationPermissionUI() {
             if (!("Notification" in window)) {
                 console.log("Ce navigateur ne supporte pas les notifications");
                 return;
@@ -2725,17 +2714,12 @@
             }
         }
 
-        function playNotificationSound() {
-            const sound = document.getElementById('notificationSound');
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log("Son bloqué:", e));
-        }
 
         // Demander la permission au chargement
         window.addEventListener('load', () => {
             setTimeout(() => {
                 if ("Notification" in window && Notification.permission === "default") {
-                    requestNotificationPermission();
+                    requestNotificationPermissionUI();
                 } else if (Notification.permission === "granted") {
                     notificationPermission = true;
                 }
