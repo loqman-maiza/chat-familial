@@ -1938,25 +1938,25 @@
             <p>Qui êtes-vous ?</p>
             
             <div class="family-buttons">
-                <button class="family-btn loqman" onclick="selectMember('Loqman', 'loqman', '👨')">
+                <button class="family-btn loqman" data-role="loqman" data-name="Loqman" data-emoji="👨">
                     <span class="emoji">👨</span>
                     <span>Loqman</span>
                 </button>
-                <button class="family-btn rayhana" onclick="selectMember('Rayhana', 'rayhana', '👩')">
+                <button class="family-btn rayhana" data-role="rayhana" data-name="Rayhana" data-emoji="👩">
                     <span class="emoji">👩</span>
                     <span>Rayhana</span>
                 </button>
-                <button class="family-btn hedi" onclick="selectMember('Hedi', 'hedi', '👦')">
+                <button class="family-btn hedi" data-role="hedi" data-name="Hedi" data-emoji="👦">
                     <span class="emoji">👦</span>
                     <span>Hedi</span>
                 </button>
-                <button class="family-btn kaltoum" onclick="selectMember('Kaltoum', 'kaltoum', '👧')">
+                <button class="family-btn kaltoum" data-role="kaltoum" data-name="Kaltoum" data-emoji="👧">
                     <span class="emoji">👧</span>
                     <span>Kaltoum</span>
                 </button>
             </div>
             
-            <button class="join-btn" id="joinBtn" disabled onclick="joinChat()">
+            <button class="join-btn" id="joinBtn" disabled>
                 Continuer
             </button>
         </div>
@@ -1996,7 +1996,7 @@
                     </div>
                 </div>
                 <div class="chat-actions">
-                    <button class="action-btn" id="voiceCallBtn" title="Appel vocal 🎤 AUDIO RÉEL" onclick="startVoiceCall()" disabled>📞</button>
+                    <button class="action-btn" id="voiceCallBtn" title="Appel vocal 🎤 AUDIO RÉEL" disabled>📞</button>
                     <button class="action-btn" title="Appel vidéo (bientôt)" disabled>📹</button>
                 </div>
             </div>
@@ -2024,8 +2024,8 @@
                     <input type="text" id="messageInput" placeholder="Tapez votre message..." disabled>
                     <button class="emoji-btn">😊</button>
                 </div>
-                <button class="send-btn" id="sendBtn" disabled onclick="sendMessage()">➤</button>
-                <button class="voice-msg-btn" id="voiceMsgBtn" disabled onclick="toggleVoiceRecording()" title="Message vocal">🎤</button>
+                <button class="send-btn" id="sendBtn" disabled>➤</button>
+                <button class="voice-msg-btn" id="voiceMsgBtn" disabled title="Message vocal">🎤</button>
             </div>
         </div>
     </div>
@@ -2038,11 +2038,11 @@
             <div class="call-status" id="callStatus">Appel en cours...</div>
             <div class="call-timer" id="callTimer" style="display: none;">00:00</div>
             <div class="call-actions" id="callActions">
-                <button class="call-btn reject" onclick="endCall()" title="Raccrocher">📞</button>
+                <button class="call-btn reject" id="endCallBtn" title="Raccrocher">📞</button>
             </div>
             <div class="call-actions" id="incomingCallActions" style="display: none;">
-                <button class="call-btn accept" onclick="acceptCall()" title="Accepter">📞</button>
-                <button class="call-btn reject" onclick="rejectCall()" title="Refuser">✖️</button>
+                <button class="call-btn accept" id="acceptCallBtn" title="Accepter">📞</button>
+                <button class="call-btn reject" id="rejectCallBtn" title="Refuser">✖️</button>
             </div>
         </div>
     </div>
@@ -2069,8 +2069,8 @@
         </div>
         <div class="recording-text">Enregistrement en cours...</div>
         <div class="recording-actions">
-            <button class="recording-btn cancel" onclick="cancelVoiceRecording()" title="Annuler">🗑️</button>
-            <button class="recording-btn send" onclick="sendVoiceMessage()" title="Envoyer">➤</button>
+            <button class="recording-btn cancel" id="cancelRecordingBtn" title="Annuler">🗑️</button>
+            <button class="recording-btn send" id="sendVoiceBtn" title="Envoyer">➤</button>
         </div>
     </div>
 
@@ -2208,31 +2208,58 @@
         }
 
         // ===== FONCTIONS GLOBALES =====
-        window.selectMember = function(name, role, emoji) {
-            currentUser = { name, role, emoji, color: allMembers[role].color };
-            
+        
+        // Ajouter les event listeners pour les boutons de sélection de membre
+        document.addEventListener('DOMContentLoaded', () => {
+            // Boutons de sélection de membre
             document.querySelectorAll('.family-btn').forEach(btn => {
-                btn.classList.remove('selected');
+                btn.addEventListener('click', () => {
+                    const name = btn.dataset.name;
+                    const role = btn.dataset.role;
+                    const emoji = btn.dataset.emoji;
+                    
+                    currentUser = { name, role, emoji, color: allMembers[role].color };
+                    
+                    document.querySelectorAll('.family-btn').forEach(b => {
+                        b.classList.remove('selected');
+                    });
+                    btn.classList.add('selected');
+                    document.getElementById('joinBtn').disabled = false;
+                });
             });
-            event.target.closest('.family-btn').classList.add('selected');
-            document.getElementById('joinBtn').disabled = false;
-        };
-
-        window.joinChat = function() {
-            if (!currentUser) return;
             
-            console.log("🔐 Connexion en tant que:", currentUser.name);
+            // Bouton "Continuer"
+            document.getElementById('joinBtn').addEventListener('click', () => {
+                if (!currentUser) return;
+                
+                console.log("🔐 Connexion en tant que:", currentUser.name);
+                
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('chatContainer').style.display = 'flex';
+                document.getElementById('firebaseStatus').style.display = 'flex';
+                
+                document.getElementById('myAvatar').textContent = currentUser.emoji;
+                document.getElementById('myName').textContent = currentUser.name;
+                
+                initChat();
+                initPeer();
+            });
             
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('chatContainer').style.display = 'flex';
-            document.getElementById('firebaseStatus').style.display = 'flex';
+            // Bouton appel vocal
+            document.getElementById('voiceCallBtn').addEventListener('click', startVoiceCall);
             
-            document.getElementById('myAvatar').textContent = currentUser.emoji;
-            document.getElementById('myName').textContent = currentUser.name;
+            // Bouton message vocal
+            document.getElementById('voiceMsgBtn').addEventListener('click', toggleVoiceRecording);
             
-            initChat();
-            initPeer();
-        };
+            // Boutons d'appel
+            document.getElementById('endCallBtn').addEventListener('click', endCall);
+            document.getElementById('acceptCallBtn').addEventListener('click', acceptCall);
+            document.getElementById('rejectCallBtn').addEventListener('click', rejectCall);
+            
+            // Boutons d'enregistrement vocal
+            document.getElementById('cancelRecordingBtn').addEventListener('click', cancelVoiceRecording);
+            document.getElementById('sendVoiceBtn').addEventListener('click', sendVoiceMessage);
+        });
 
         function initChat() {
             console.log("🚀 Initialisation du chat...");
@@ -2714,7 +2741,7 @@
                 if (role !== currentUser.role) {
                     const member = allMembers[role];
                     html += `
-                        <div class="contact-item" data-role="${role}" onclick="selectContact('${role}')">
+                        <div class="contact-item" data-role="${role}">
                             <div class="contact-avatar" style="background: ${member.color}">${member.emoji}</div>
                             <div class="contact-info">
                                 <div class="contact-name">${member.name}</div>
@@ -2726,6 +2753,13 @@
             });
             
             contactsList.innerHTML = html;
+            
+            // Ajouter les event listeners aux contacts
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    selectContact(item.dataset.role);
+                });
+            });
         }
 
         function updateContactsStatus(presenceData) {
@@ -2743,7 +2777,7 @@
             });
         }
 
-        window.selectContact = function(role) {
+        function selectContact(role) {
             console.log("👤 Contact sélectionné:", role);
             
             if (currentMessagesListener) {
@@ -2964,7 +2998,7 @@
             }, 100);
         }
 
-        window.sendMessage = function() {
+        function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
@@ -2987,7 +3021,7 @@
 
         // ===== APPEL VOCAL AVEC PEERJS =====
         
-        window.startVoiceCall = async function() {
+        async function startVoiceCall() {
             if (!selectedContact) {
                 alert("Sélectionnez d'abord un contact !");
                 return;
@@ -3071,7 +3105,7 @@
             currentCall = call;
         }
         
-        window.acceptCall = async function() {
+        async function acceptCall() {
             console.log("✅ Acceptation de l'appel");
             
             try {
@@ -3113,7 +3147,7 @@
             }
         };
         
-        window.rejectCall = function() {
+        function rejectCall() {
             console.log("❌ Refus de l'appel");
             
             if (currentCall) {
@@ -3135,7 +3169,7 @@
             }, 1000);
         }
         
-        window.endCall = function() {
+        function endCall() {
             console.log("📴 Fin de l'appel");
             
             // Arrêter le timer
@@ -3289,7 +3323,7 @@
 
         // ===== MESSAGES VOCAUX =====
         
-        window.toggleVoiceRecording = async function() {
+        async function toggleVoiceRecording() {
             if (isRecording) {
                 stopVoiceRecording();
             } else {
@@ -3366,7 +3400,7 @@
             document.getElementById('voiceMsgBtn').classList.remove('recording');
         }
 
-        window.cancelVoiceRecording = function() {
+        function cancelVoiceRecording() {
             console.log("❌ Enregistrement annulé");
             stopVoiceRecording();
             audioChunks = [];
@@ -3374,7 +3408,7 @@
             document.getElementById('recordingTime').textContent = '00:00';
         };
 
-        window.sendVoiceMessage = async function() {
+        async function sendVoiceMessage() {
             console.log("📤 Envoi du message vocal");
             
             stopVoiceRecording();
