@@ -22,7 +22,7 @@
             --loqman: #6366f1;
             --rayhana: #ec4899;
             --hedi: #3b82f6;
-            --kaltoum: #f59e0b;
+            --kalthoum: #f59e0b;
             --bg: #f8fafc;
             --white: #ffffff;
             --text: #1e293b;
@@ -137,7 +137,7 @@
         .family-btn.loqman { color: var(--loqman); }
         .family-btn.rayhana { color: var(--rayhana); }
         .family-btn.hedi { color: var(--hedi); }
-        .family-btn.kaltoum { color: var(--kaltoum); }
+        .family-btn.kalthoum { color: var(--kalthoum); }
 
         .family-btn .emoji {
             font-size: 40px;
@@ -1950,7 +1950,7 @@
                     <span class="emoji">👦</span>
                     <span>Hedi</span>
                 </button>
-                <button class="family-btn kalthoum" data-role="kaltoum" data-name="Kalthoum" data-emoji="👧">
+                <button class="family-btn kalthoum" data-role="kalthoum" data-name="Kalthoum" data-emoji="👧">
                     <span class="emoji">👧</span>
                     <span>Kalthoum</span>
                 </button>
@@ -2099,7 +2099,7 @@
             loqman: { name: 'Loqman', emoji: '👨', color: '#6366f1' },
             rayhana: { name: 'Rayhana', emoji: '👩', color: '#ec4899' },
             hedi: { name: 'Hedi', emoji: '👦', color: '#3b82f6' },
-            kaltoum: { name: 'Kaltoum', emoji: '👧', color: '#f59e0b' }
+            kalthoum: { name: 'Kalthoum', emoji: '👧', color: '#f59e0b' }
         };
 
         // Variables globales
@@ -2209,14 +2209,21 @@
 
         // ===== FONCTIONS GLOBALES =====
         
-        // Ajouter les event listeners pour les boutons de sélection de membre
-        document.addEventListener('DOMContentLoaded', () => {
+        // Attendre un instant que tout soit bien chargé
+        setTimeout(() => {
+            console.log("🔧 Initialisation des event listeners...");
+            
             // Boutons de sélection de membre
-            document.querySelectorAll('.family-btn').forEach(btn => {
+            const familyBtns = document.querySelectorAll('.family-btn');
+            console.log("📝 Boutons trouvés:", familyBtns.length);
+            
+            familyBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const name = btn.dataset.name;
                     const role = btn.dataset.role;
                     const emoji = btn.dataset.emoji;
+                    
+                    console.log("✅ Sélection:", name);
                     
                     currentUser = { name, role, emoji, color: allMembers[role].color };
                     
@@ -2259,7 +2266,9 @@
             // Boutons d'enregistrement vocal
             document.getElementById('cancelRecordingBtn').addEventListener('click', cancelVoiceRecording);
             document.getElementById('sendVoiceBtn').addEventListener('click', sendVoiceMessage);
-        });
+            
+            console.log("✅ Event listeners initialisés");
+        }, 100);
 
         function initChat() {
             console.log("🚀 Initialisation du chat...");
