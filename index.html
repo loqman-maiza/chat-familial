@@ -949,6 +949,61 @@
             transform: scale(0.95);
         }
 
+        /* INDICATEUR "EN TRAIN D'ÉCRIRE" */
+        .typing-indicator {
+            display: none;
+            align-items: flex-end;
+            gap: 12px;
+            animation: messageSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 70%;
+            margin-bottom: 20px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-bubble {
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            animation: typing-animation 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-animation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
         /* CALL MODAL */
         .call-modal {
             position: fixed;
@@ -1379,6 +1434,19 @@
                 font-size: 28px;
             }
 
+            .typing-indicator {
+                margin-bottom: 15px;
+            }
+
+            .typing-bubble {
+                padding: 12px 16px;
+            }
+
+            .typing-dot {
+                width: 7px;
+                height: 7px;
+            }
+
             /* CALL MODAL */
             .call-box {
                 padding: 40px 30px;
@@ -1645,6 +1713,16 @@
                 </div>
             </div>
 
+            <!-- TYPING INDICATOR -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-avatar" id="typingAvatar" style="background: #6366f1">👤</div>
+                <div class="typing-bubble">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
             <div class="input-area">
                 <div class="input-wrapper">
                     <button class="attach-btn">📎</button>
@@ -1742,6 +1820,10 @@
         let recordingStartTime = null;
         let isRecording = false;
         let currentPlayingAudio = null;
+
+        // Variables pour l'indicateur "en train d'écrire"
+        let typingTimer = null;
+        let isTyping = false;
 
         // Initialiser Firebase
         try {
@@ -1930,6 +2012,7 @@
             document.getElementById('messageInput').focus();
             
             loadMessages(role);
+            listenForTyping(role);
         };
 
         function loadMessages(contactRole) {
@@ -2320,6 +2403,38 @@
                 sendMessage();
             }
         });
+
+        // Détecter quand l'utilisateur tape
+        document.getElementById('messageInput').addEventListener('input', (e) => {
+            if (!selectedContact) return;
+            
+            const text = e.target.value;
+            
+            // Si on commence à taper
+            if (text.length > 0 && !isTyping) {
+                isTyping = true;
+                sendTypingStatus(true);
+            }
+            
+            // Reset le timer
+            clearTimeout(typingTimer);
+            
+            // Arrêter d'afficher "en train d'écrire" après 2 secondes d'inactivité
+            typingTimer = setTimeout(() => {
+                isTyping = false;
+                sendTypingStatus(false);
+            }, 2000);
+        });
+
+        // Arrêter "en train d'écrire" quand on envoie le message
+        const originalSendMessage = sendMessage;
+        sendMessage = function() {
+            if (isTyping) {
+                isTyping = false;
+                sendTypingStatus(false);
+            }
+            originalSendMessage();
+        };
         
         // Nettoyer à la fermeture
         window.addEventListener('beforeunload', () => {
@@ -2328,6 +2443,52 @@
                 peer.destroy();
             }
         });
+
+        // ===== INDICATEUR "EN TRAIN D'ÉCRIRE" =====
+        
+        function sendTypingStatus(typing) {
+            if (!selectedContact || !currentUser) return;
+            
+            const typingRef = ref(database, `typing/${selectedContact}/${currentUser.role}`);
+            
+            if (typing) {
+                set(typingRef, {
+                    typing: true,
+                    name: currentUser.name,
+                    emoji: currentUser.emoji,
+                    color: currentUser.color,
+                    timestamp: serverTimestamp()
+                });
+            } else {
+                remove(typingRef);
+            }
+        }
+
+        function listenForTyping(contactRole) {
+            const typingRef = ref(database, `typing/${currentUser.role}/${contactRole}`);
+            
+            onValue(typingRef, (snapshot) => {
+                const typingData = snapshot.val();
+                const typingIndicator = document.getElementById('typingIndicator');
+                const typingAvatar = document.getElementById('typingAvatar');
+                
+                if (typingData && typingData.typing) {
+                    // Afficher l'indicateur
+                    typingIndicator.classList.add('active');
+                    typingAvatar.textContent = typingData.emoji;
+                    typingAvatar.style.background = typingData.color;
+                    
+                    // Scroll vers le bas
+                    const messagesArea = document.getElementById('messagesArea');
+                    setTimeout(() => {
+                        messagesArea.scrollTop = messagesArea.scrollHeight;
+                    }, 100);
+                } else {
+                    // Cacher l'indicateur
+                    typingIndicator.classList.remove('active');
+                }
+            });
+        }
 
         // ===== MESSAGES VOCAUX =====
         
