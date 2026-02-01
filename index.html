@@ -1004,6 +1004,147 @@
             }
         }
 
+        /* NOTIFICATIONS */
+        .notification {
+            position: fixed;
+            top: -100px;
+            right: 20px;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 320px;
+            max-width: 400px;
+            z-index: 3000;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        .notification.show {
+            top: 20px;
+            animation: notificationShake 0.5s ease-in-out;
+        }
+
+        @keyframes notificationShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .notification:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .notification-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #64748b;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification.call {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: var(--white);
+            animation: notificationPulse 2s infinite;
+        }
+
+        @keyframes notificationPulse {
+            0%, 100% { box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 15px 60px rgba(99, 102, 241, 0.6); }
+        }
+
+        .notification.call .notification-title,
+        .notification.call .notification-message {
+            color: var(--white);
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Badge de notification */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: var(--white);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(239, 68, 68, 0.5);
+            animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes badgePop {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        /* Son de notification */
+        .notification-sound {
+            display: none;
+        }
+
         /* CALL MODAL */
         .call-modal {
             position: fixed;
@@ -1186,6 +1327,160 @@
             border-radius: 50%;
             background: currentColor;
             box-shadow: 0 0 10px currentColor;
+        }
+
+        /* NOTIFICATION BADGE */
+        .notification-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 3000;
+            animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            max-width: 350px;
+        }
+
+        .notification-badge.show {
+            display: flex;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-badge.slide-out {
+            animation: slideOutRight 0.5s forwards;
+        }
+
+        @keyframes slideOutRight {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .notification-icon {
+            font-size: 28px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .notification-text {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* NOTIFICATION PERMISSION MODAL */
+        .notification-permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+        }
+
+        .notification-permission-modal.show {
+            display: flex;
+        }
+
+        .notification-permission-box {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .notification-permission-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .notification-permission-box h2 {
+            font-size: 24px;
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+
+        .notification-permission-box p {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .notification-permission-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .permission-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .permission-btn.allow {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: var(--white);
+        }
+
+        .permission-btn.allow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .permission-btn.deny {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .permission-btn.deny:hover {
+            background: #cbd5e1;
         }
 
         /* ===== RESPONSIVE MOBILE ===== */
@@ -1758,6 +2053,14 @@
         <span id="statusText">Déconnecté</span>
     </div>
 
+    <!-- NOTIFICATIONS CONTAINER -->
+    <div id="notificationsContainer"></div>
+
+    <!-- Sons de notification -->
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1L" type="audio/wav">
+    </audio>
+
     <!-- RECORDING MODAL -->
     <div class="recording-modal" id="recordingModal">
         <div class="recording-indicator">
@@ -1825,6 +2128,74 @@
         let typingTimer = null;
         let isTyping = false;
 
+        // Variables pour les notifications
+        let notificationPermission = false;
+        let unreadMessages = {};
+        let lastMessageId = null;
+
+        // Variables pour les notifications
+        let notificationPermission = false;
+        let lastNotifiedMessage = null;
+
+        // ===== NOTIFICATIONS =====
+        
+        // Demander la permission pour les notifications
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('❌ Les notifications ne sont pas supportées');
+                return false;
+            }
+
+            if (Notification.permission === 'granted') {
+                notificationPermission = true;
+                return true;
+            }
+
+            if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                notificationPermission = (permission === 'granted');
+                return notificationPermission;
+            }
+
+            return false;
+        }
+
+        // Afficher une notification
+        function showNotification(title, options = {}) {
+            if (!notificationPermission) return;
+
+            const notification = new Notification(title, {
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%236366f1"/><text x="50" y="70" font-size="60" text-anchor="middle" fill="white">💬</text></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%236366f1"/></svg>',
+                vibrate: [200, 100, 200],
+                requireInteraction: true,
+                ...options
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+
+            // Son de notification (si le navigateur le supporte)
+            playNotificationSound();
+
+            return notification;
+        }
+
+        // Jouer le son de notification
+        function playNotificationSound() {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1Lp+PyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BfFw1L');
+            audio.volume = 0.3;
+            audio.play().catch(() => {}); // Ignore les erreurs si le son ne peut pas être joué
+        }
+
+        // Variables pour les notifications
+        let notificationPermission = 'default';
+        let lastMessageId = null;
+        let isPageVisible = true;
+        let pendingNotificationData = null;
+
         // Initialiser Firebase
         try {
             app = initializeApp(firebaseConfig);
@@ -1866,6 +2237,9 @@
         function initChat() {
             console.log("🚀 Initialisation du chat...");
             
+            // Demander la permission pour les notifications
+            requestNotificationPermission();
+            
             presenceRef = ref(database, 'presence/' + currentUser.role);
             set(presenceRef, {
                 name: currentUser.name,
@@ -1887,6 +2261,236 @@
             onValue(allPresenceRef, (snapshot) => {
                 updateContactsStatus(snapshot.val());
             });
+
+            // Demander la permission des notifications
+            checkNotificationPermission();
+
+            // Écouter les nouveaux messages pour les notifications
+            listenForNewMessages();
+
+            // Détecter si la page est visible ou non
+            document.addEventListener('visibilitychange', () => {
+                isPageVisible = !document.hidden;
+            });
+        }
+
+        // ===== SYSTÈME DE NOTIFICATIONS =====
+
+        function checkNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("❌ Notifications non supportées");
+                return;
+            }
+
+            notificationPermission = Notification.permission;
+
+            if (notificationPermission === 'default') {
+                // Afficher le modal de demande de permission après 3 secondes
+                setTimeout(() => {
+                    document.getElementById('notificationPermissionModal').classList.add('show');
+                }, 3000);
+            }
+        }
+
+        window.requestNotificationPermission = async function() {
+            try {
+                const permission = await Notification.requestPermission();
+                notificationPermission = permission;
+                
+                if (permission === 'granted') {
+                    console.log("✅ Notifications activées");
+                    showInAppNotification("🎉 Notifications activées", "Vous recevrez maintenant des notifications pour les messages et appels !");
+                    
+                    // Tester avec une notification
+                    new Notification("Chat Familial", {
+                        body: "Les notifications sont activées !",
+                        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>💬</text></svg>",
+                        badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>💬</text></svg>",
+                        tag: "test"
+                    });
+                }
+                
+                document.getElementById('notificationPermissionModal').classList.remove('show');
+            } catch (error) {
+                console.error("❌ Erreur permission:", error);
+            }
+        };
+
+        window.denyNotifications = function() {
+            document.getElementById('notificationPermissionModal').classList.remove('show');
+            console.log("📵 Notifications refusées");
+        };
+
+        function listenForNewMessages() {
+            // Écouter TOUS les messages de toutes les conversations
+            Object.keys(allMembers).forEach(role => {
+                if (role === currentUser.role) return;
+
+                const conversationId = [currentUser.role, role].sort().join('_');
+                const messagesRef = ref(database, 'conversations/' + conversationId);
+
+                onValue(messagesRef, (snapshot) => {
+                    const messages = [];
+                    snapshot.forEach((childSnapshot) => {
+                        const msg = childSnapshot.val();
+                        if (msg.to === currentUser.role) {
+                            messages.push({
+                                id: childSnapshot.key,
+                                ...msg
+                            });
+                        }
+                    });
+
+                    // Vérifier s'il y a un nouveau message
+                    if (messages.length > 0) {
+                        const latestMsg = messages[messages.length - 1];
+                        
+                        // Si c'est un nouveau message et qu'on n'est pas sur la page ou pas dans cette conversation
+                        if (latestMsg.id !== lastMessageId && (!isPageVisible || selectedContact !== role)) {
+                            lastMessageId = latestMsg.id;
+                            
+                            const sender = allMembers[role];
+                            
+                            if (latestMsg.type === 'voice') {
+                                sendNotification(
+                                    sender.name,
+                                    "🎤 Message vocal",
+                                    sender.emoji,
+                                    role
+                                );
+                            } else {
+                                sendNotification(
+                                    sender.name,
+                                    latestMsg.text,
+                                    sender.emoji,
+                                    role
+                                );
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function sendNotification(title, body, icon, fromRole) {
+            // Notification dans l'app (toujours visible)
+            showInAppNotification(`${icon} ${title}`, body, fromRole);
+
+            // Notification navigateur (si page cachée ou dans autre conversation)
+            if (notificationPermission === 'granted' && (!isPageVisible || selectedContact !== fromRole)) {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>" + icon + "</text></svg>",
+                    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>💬</text></svg>",
+                    tag: 'message-' + fromRole,
+                    requireInteraction: false,
+                    vibrate: [200, 100, 200]
+                });
+
+                // Son de notification
+                playNotificationSound();
+
+                notification.onclick = () => {
+                    window.focus();
+                    selectContact(fromRole);
+                    notification.close();
+                };
+
+                // Fermer automatiquement après 5 secondes
+                setTimeout(() => notification.close(), 5000);
+            }
+        }
+
+        function showInAppNotification(title, text, fromRole = null) {
+            const badge = document.getElementById('notificationBadge');
+            const iconEl = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const textEl = document.getElementById('notificationText');
+
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            
+            if (fromRole) {
+                iconEl.textContent = allMembers[fromRole].emoji;
+                pendingNotificationData = fromRole;
+            } else {
+                iconEl.textContent = '💬';
+                pendingNotificationData = null;
+            }
+
+            badge.classList.remove('slide-out');
+            badge.classList.add('show');
+
+            // Cacher après 5 secondes
+            setTimeout(() => {
+                badge.classList.add('slide-out');
+                setTimeout(() => {
+                    badge.classList.remove('show', 'slide-out');
+                }, 500);
+            }, 5000);
+        }
+
+        window.handleNotificationClick = function() {
+            if (pendingNotificationData) {
+                selectContact(pendingNotificationData);
+                pendingNotificationData = null;
+            }
+            
+            const badge = document.getElementById('notificationBadge');
+            badge.classList.add('slide-out');
+            setTimeout(() => {
+                badge.classList.remove('show', 'slide-out');
+            }, 500);
+        };
+
+        function playNotificationSound() {
+            // Créer un son de notification simple
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Notification pour les appels entrants
+        function notifyIncomingCall(callerName, callerEmoji) {
+            // Notification navigateur
+            if (notificationPermission === 'granted') {
+                const notification = new Notification(`📞 Appel de ${callerName}`, {
+                    body: "Appuyez pour répondre",
+                    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>" + callerEmoji + "</text></svg>",
+                    tag: 'call-incoming',
+                    requireInteraction: true,
+                    vibrate: [300, 200, 300, 200, 300]
+                });
+
+                // Son de sonnerie en boucle
+                const ringtoneInterval = setInterval(() => {
+                    playNotificationSound();
+                }, 2000);
+
+                notification.onclick = () => {
+                    window.focus();
+                    clearInterval(ringtoneInterval);
+                    notification.close();
+                };
+
+                // Stocker l'interval pour l'arrêter plus tard
+                notification.ringtoneInterval = ringtoneInterval;
+            }
+
+            // Notification dans l'app
+            showInAppNotification(`📞 Appel de ${callerName}`, "Appel entrant...");
         }
 
         // ===== INITIALISATION PEERJS =====
@@ -1926,6 +2530,23 @@
                 const callerRole = call.peer.replace('chat-familial-', '');
                 const caller = allMembers[callerRole];
                 
+                // Notification pour l'appel entrant
+                showInAppNotification(
+                    `📞 Appel de ${caller.name}`,
+                    'Appel vocal entrant',
+                    caller.emoji,
+                    caller.color
+                );
+                
+                // Notification système
+                if (notificationPermission) {
+                    showNotification(`📞 Appel de ${caller.name}`, {
+                        body: 'Appel vocal entrant - Cliquez pour répondre',
+                        tag: 'incoming-call',
+                        requireInteraction: true
+                    });
+                }
+                
                 // Afficher le modal d'appel entrant
                 showIncomingCallModal(caller, callerRole, call);
             });
@@ -1934,6 +2555,156 @@
                 console.error('❌ Erreur PeerJS:', err);
             });
         }
+
+        // ===== SYSTÈME DE NOTIFICATIONS =====
+        
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("Ce navigateur ne supporte pas les notifications");
+                return;
+            }
+            
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    notificationPermission = true;
+                    console.log("✅ Notifications activées");
+                    showInAppNotification("Notifications activées", "Vous recevrez des alertes pour les nouveaux messages", "🔔", "#10b981");
+                }
+            });
+        }
+
+        function showInAppNotification(title, message, icon, color) {
+            const container = document.getElementById('notificationsContainer');
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div class="notification-avatar" style="background: ${color}">${icon}</div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Afficher avec animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Masquer automatiquement après 5 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 400);
+            }, 5000);
+            
+            // Cliquer pour fermer
+            notification.addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 400);
+            });
+        }
+
+        function showMessageNotification(sender, message, isVoice = false) {
+            const senderData = allMembers[sender];
+            const title = senderData.name;
+            const body = isVoice ? "🎤 Message vocal" : message.substring(0, 50) + (message.length > 50 ? "..." : "");
+            
+            // Son de notification
+            playNotificationSound();
+            
+            // Notification in-app
+            showInAppNotification(title, body, senderData.emoji, senderData.color);
+            
+            // Notification système si la page n'est pas visible
+            if (notificationPermission && document.hidden) {
+                const systemNotif = new Notification(title, {
+                    body: body,
+                    icon: senderData.emoji,
+                    badge: senderData.emoji,
+                    tag: 'message-' + sender,
+                    requireInteraction: false
+                });
+                
+                systemNotif.onclick = () => {
+                    window.focus();
+                    selectContact(sender);
+                    systemNotif.close();
+                };
+                
+                setTimeout(() => systemNotif.close(), 5000);
+            }
+        }
+
+        function showCallNotification(caller, isIncoming = true) {
+            const callerData = allMembers[caller];
+            const title = isIncoming ? `Appel entrant de ${callerData.name}` : `Appel vers ${callerData.name}`;
+            
+            // Son d'appel
+            const callSound = document.getElementById('notificationSound');
+            callSound.play();
+            
+            // Notification in-app pour appel
+            const container = document.getElementById('notificationsContainer');
+            const notification = document.createElement('div');
+            notification.className = 'notification call';
+            notification.innerHTML = `
+                <div class="notification-avatar" style="background: ${callerData.color}">${callerData.emoji}</div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${isIncoming ? 'Touchez pour répondre' : 'Appel en cours...'}</div>
+                </div>
+                <div class="notification-icon">📞</div>
+            `;
+            
+            container.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            if (isIncoming) {
+                notification.onclick = () => {
+                    window.focus();
+                    notification.remove();
+                };
+            }
+            
+            // Notification système
+            if (notificationPermission && isIncoming) {
+                const systemNotif = new Notification(title, {
+                    body: 'Appel vocal entrant',
+                    icon: '📞',
+                    tag: 'call-' + caller,
+                    requireInteraction: true
+                });
+                
+                systemNotif.onclick = () => {
+                    window.focus();
+                    systemNotif.close();
+                };
+            }
+        }
+
+        function playNotificationSound() {
+            const sound = document.getElementById('notificationSound');
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Son bloqué:", e));
+        }
+
+        // Demander la permission au chargement
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if ("Notification" in window && Notification.permission === "default") {
+                    requestNotificationPermission();
+                } else if (Notification.permission === "granted") {
+                    notificationPermission = true;
+                }
+            }, 3000);
+        });
 
         function renderContacts() {
             const contactsList = document.getElementById('contactsList');
@@ -2027,6 +2798,32 @@
                         ...childSnapshot.val()
                     });
                 });
+                
+                // Vérifier s'il y a de nouveaux messages pour notifier
+                if (messages.length > 0) {
+                    const lastMessage = messages[messages.length - 1];
+                    
+                    // Si c'est un nouveau message reçu (pas de moi) et que la page n'est pas focus
+                    if (lastMessage.to === currentUser.role && 
+                        lastMessage.id !== lastNotifiedMessage && 
+                        !document.hasFocus()) {
+                        
+                        lastNotifiedMessage = lastMessage.id;
+                        const sender = allMembers[lastMessage.from];
+                        
+                        if (lastMessage.type === 'voice') {
+                            showNotification(`${sender.emoji} ${sender.name}`, {
+                                body: '🎤 Message vocal',
+                                tag: 'new-message'
+                            });
+                        } else {
+                            showNotification(`${sender.emoji} ${sender.name}`, {
+                                body: lastMessage.text,
+                                tag: 'new-message'
+                            });
+                        }
+                    }
+                }
                 
                 // Marquer les messages comme lus et livrés
                 messages.forEach(msg => {
